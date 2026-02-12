@@ -1,24 +1,38 @@
-def binary_search(arr:list[int], key:int) -> int:
-    low = 0
-    high = len(arr) - 1
-    found = False
-    while low <= high and not found:
-        median_index = (low + high) // 2
-        median = arr[median_index]
+import numpy as np
 
-        if key < median:
-            high = median_index - 1
-        elif key > median:
-            low = median_index + 1
+
+def binary_search(arr:list[int], key:int, low, high) -> int:
+    while low <= high:
+        mid = (low + high) // 2
+
+        if key < arr[mid]:
+            high = mid - 1
+        elif key > arr[mid]:
+            low = mid + 1
         else:
-            found = True
-            return median_index
+            return mid+1
 
-    return -1
+    return low
+
+
 
 if __name__ == "__main__":
-    arr = np.linspace(1, 100, 100)
-    key = 101
+    rng = np.random.default_rng(seed=42)
+    arr = rng.integers(0, 10, size=10)
+    print(arr)
 
-    print(binary_search(arr, key))
+    for unsorted_index in range(1, len(arr)):
+        j = unsorted_index - 1
+        x = arr[unsorted_index]
+
+        loc = binary_search(arr, x, 0, j)
+
+        while j >= loc:
+            arr[j+1] = arr[j]
+            j -= 1
+        arr[j+1] = x
+        print(arr, "Последний отсортированный элемент:", arr[unsorted_index],
+              "Вставляемый элемент:", x)
+    print(arr)
+
 
