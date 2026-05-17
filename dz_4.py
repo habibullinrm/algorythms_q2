@@ -3,7 +3,6 @@ import heapq
 from typing import List, Tuple
 
 import numpy as np
-from pandas.io.formats.format import return_docstring
 
 def harry_and_novp():
     n1 = int(input())
@@ -40,6 +39,46 @@ def harry_and_novp():
         novp.reverse()
         print(' '.join(map(str, novp)))
     return
+
+def ex_1():
+    data = sys.stdin.read().split()
+    idx = 0
+    n1 = int(data[idx]); idx += 1
+    s1 = [int(data[idx + i]) for i in range(n1)]; idx += n1
+    n2 = int(data[idx]); idx += 1
+    s2 = [int(data[idx + i]) for i in range(n2)]; idx += n2
+
+    dp = [0] * n2
+    chain = [None] * n2 
+
+    for i in range(n1):
+        cur_len = 0
+        cur_node = None
+        for j in range(n2):
+            if s2[j] == s1[i]:
+                if cur_len + 1 > dp[j]:
+                    dp[j] = cur_len + 1
+                    chain[j] = (j, cur_node)
+            elif s2[j] < s1[i]:
+                if dp[j] > cur_len:
+                    cur_len = dp[j]
+                    cur_node = chain[j]
+
+    max_len = max(dp) if n2 else 0
+    result = []
+    if max_len > 0:
+        max_j = max(range(n2), key=lambda j: dp[j])
+        node = chain[max_j]
+        while node is not None:
+            j_idx, prev = node
+            result.append(s2[j_idx])
+            node = prev
+        result.reverse()
+
+    print(max_len)
+    print(*result)
+
+
 
 def hogvarts_bag():
     n, m = map(int, input().split())
@@ -94,18 +133,103 @@ def ex_4():
     print(n - prev[n])
     return
 
+def ex_4_2():
+    S = input().strip()
+    n = len(S)
+    T = S[::-1]
+
+    prev = [0] * (n + 1)
+
+    for i in range(1, n + 1):
+        curr = [0] * (n + 1)
+        for j in range(1, n + 1):
+            if S[i - 1] == T[j - 1]:
+                curr[j] = prev[j - 1]
+            else:      
+                curr[j] = min(prev[j], prev[j - 1]) + 1 
+        prev = curr
+
+    lps = prev[n]
+    print(n - lps)
+
+def ex_4_3():
+    s = input().strip()
+    n = len(s)
+    prev = [0] * (n + 1)  
+    curr = [0] * (n + 1)  
+    for i in range(n - 1, -1, -1):
+        curr[i] = 1
+        for j in range(i + 1, n):
+            if s[i] == s[j]:
+                curr[j] = prev[j - 1] + 2
+            else:
+                curr[j] = max(prev[j], curr[j - 1])
+        prev, curr = curr, prev
+    return n - prev[n - 1]
+
+import sys
+
+
+def ex_5():
+    data = sys.stdin.buffer.read().split()
+    n = int(data[0])
+    L = int(data[1])
+    x = list(map(int, data[2:2 + n]))
+
+    count = 0
+    i = 0
+    while i < n:
+        count += 1
+        right = x[i] + L          
+        while i < n and x[i] <= right:
+            i += 1                 
+    print(count)
+
+def ex_6():
+    pass
+
+def ex_7():
+    n = int(input())
+
+    dp = [0] + [1] * 9                       
+
+    for _ in range(n - 1):
+        nxt = [0] * 10
+        nxt[0] = dp[0] + dp[1]               
+        for d in range(1, 9):
+            nxt[d] = dp[d - 1] + dp[d] + dp[d + 1]
+        nxt[9] = dp[8] + dp[9]               
+        dp = nxt
+
+    print(sum(dp))
+
+def ex_8():
+    data = sys.stdin.read().split()
+    c_ins, c_del, c_rep = int(data[0]), int(data[1]), int(data[2])
+    s = data[3] if len(data) > 3 else ""
+    t = data[4] if len(data) > 4 else ""
+
+    n, m = len(s), len(t)
+    dp = [[0] * (m + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        dp[i][0] = i * c_del
+    for j in range(1, m + 1):
+        dp[0][j] = j * c_ins
+
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if s[i - 1] == t[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            else:
+                dp[i][j] = min(
+                    dp[i - 1][j - 1] + c_rep,  
+                    dp[i - 1][j]     + c_del,  
+                    dp[i][j - 1]     + c_ins, 
+                )
+
+    print(dp[n][m])
+
+
 if __name__ == '__main__':
-import numpy as np
-
-s = input()
-r = s[::-1]
-
-s_bytes = np.frombuffer(s.encode(), dtype=np.uint8)
-r_bytes = np.frombuffer(r.encode(), dtype=np.uint8)
-n = len(r_bytes)
-prev = np.zeros(n + 1, dtype=np.int32)
-for i in range(n):
-    matches = np.where(s_bytes[i] == r_bytes, prev[:n] + 1, 0)
-    run_max = np.maximum.accumulate(matches)
-    prev[1:] = np.maximum(prev[1:], run_max)
-print(n - prev[n])
+    ex_8()
