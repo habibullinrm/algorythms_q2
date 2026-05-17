@@ -95,17 +95,4 @@ def ex_4():
     return
 
 if __name__ == '__main__':
-import numpy as np
-
-s = input()
-r = s[::-1]
-
-s_bytes = np.frombuffer(s.encode(), dtype=np.uint8)
-r_bytes = np.frombuffer(r.encode(), dtype=np.uint8)
-n = len(r_bytes)
-prev = np.zeros(n + 1, dtype=np.int32)
-for i in range(n):
-    matches = np.where(s_bytes[i] == r_bytes, prev[:n] + 1, 0)
-    run_max = np.maximum.accumulate(matches)
-    prev[1:] = np.maximum(prev[1:], run_max)
-print(n - prev[n])
+    ex_4()
